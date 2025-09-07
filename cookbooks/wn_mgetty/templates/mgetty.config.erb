@@ -1,0 +1,17 @@
+# mgetty configuration file
+#
+# This file is managed by Chef. Do not edit, all changes will be overwritten.
+# See wn_mgetty/README.md
+#
+# Global config
+<% node['wn_mgetty']['global'].each do |k, v| -%>
+<%=   k %> <%= v %>
+<% end -%>
+
+# Port config
+<% node['wn_mgetty']['port'].each do |name, data| -%>
+port <%= name %>
+<%   data.each do |k, v| -%>
+  <%=  k %> <%= v %>
+<%   end -%>
+<% end -%>

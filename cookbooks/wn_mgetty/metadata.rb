@@ -1,0 +1,11 @@
+name 'wn_mgetty'
+maintainer 'Bryan Wann'
+maintainer_email 'bwann-chef@wann.net'
+license 'All Rights Reserved'
+source_url 'https://github.com/bwann/chef/cookbooks'
+description 'Installs/Configures mgetty'
+# never EVER change this number, ever.
+version '0.1.0'
+supports 'centos'
+supports 'debian'
+supports 'ubuntu'

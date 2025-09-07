@@ -1,0 +1,8 @@
+# login.config
+#
+# This file is managed by Chef. Do not edit, all changes will be overwritten.
+# See wn_mgetty/README.md
+#
+<% node['wn_mgetty']['login'].each do |line| -%>
+<%=  line %>
+<% end -%>

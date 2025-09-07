@@ -1,0 +1,18 @@
+# dialin.config
+#
+# This file is managed by Chef. Do not edit, all changes will be overwritten.
+# See wn_mgetty/README.md
+#
+# cndfile contains a series of tokens separated by newlines, commas, tabs
+# and spaces.  The callerid number is compared with each token in turn,
+# until a match occurs.  A match occurs when the token compares equally to
+# the callerid information up to the length of the token.  If the token is
+# prefixed with a "!", a match means "do not answer the phone".  The token
+# "all" matches any telephone number, and will terminate scanning of the
+# cndfile.  If no callerid number is present, it is assumed to have the
+# value "none".  A line starting with "#" is a comment.  There is an
+# implicit "all" at the end of the file.
+#
+<% node['wn_mgetty']['dialin'].each do |line| -%>
+<%=  line %>
+<% end -%>
