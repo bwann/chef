@@ -1,0 +1,13 @@
+# This file is managed by Chef. Do not make any changes here or they will
+# be overwritten. See wn_containerd/README.md for more information.
+<% node['wn_containerd']['config'].each do |section, config|  %>
+<%   if section == '_global' %>
+<%     indent = 0 %>
+<%   else %>
+<%     indent = 1 %>
+[<%=    section %>]
+<%   end %>
+<%=  render "toml_hash.erb",
+       :variables => { :config => config, :indent => indent } -%>
+<% end %>
+

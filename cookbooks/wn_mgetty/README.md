@@ -24,9 +24,6 @@ in `/usr/share/doc/mgetty`.
 This cookbook will create a systemd unit for this port,
  e.g. `mgetty@ttyS3.service`
 
-**TODO:** write a LWRP or custom resource for the cookbook to manage multiple
-serial ports on a system.
-
 * `node['wn_mgetty']['global']` is a hash of key/value items for global
 configuration options.  In particular this sets things like debug level,
 serial port speed, ownership+mode of tty devices.
@@ -40,7 +37,7 @@ attribute `node.default['wn_getty']['global']['speed'] = 57600`.
 for use with UUCP, set theses attributes (otherwise package defaults
 are used):
 
-```
+```ruby
 node.default['wn_getty']['global']['port-owner'] = 'uucp'
 node.default['wn_getty']['global']['port-group'] = 'uucp'
 node.default['wn_getty']['global']['port-mode'] = '0664'
@@ -51,7 +48,7 @@ individual port configuration, indexed by the serial device name.
 
 Example:
 
-```
+```ruby
 # Configure only an init-string ("init-chat") for the modem on /dev/ttyUSB0
 
 node.default['wn_getty']['port']['ttyUSB0']['init-chat'] =
@@ -82,7 +79,7 @@ By default this is set to `*       -       -       /bin/login @` to spawn
 
 Example:
 
-```
+```bash
 # - If the username given starts with a 'U' consider it a UUCP caller and
 # start uucico, and
 # - If a PPP caller is detected, launch pppd, and
@@ -102,7 +99,7 @@ substitution variables.  By default this is empty.
 
 Example: 
 
-```
+```bash
 # To display the system name, serial port (\P), and CONNECT attributes
 
 node.default['wn_getty']['issue_file'] = [
