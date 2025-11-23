@@ -1,0 +1,12 @@
+# This file is managed by Chef. Do not make any changes here or they will be
+# overwritten!  See wn_exabgp/README.md for more information.
+<% node['wn_exabgp'].each do |section, config| %>
+<%   indent = 1 %>
+
+<%   config.each do |key, value| %>
+<%=  section %> <%= key %> {
+<%=  render "exabgp_hash.erb",
+       :variables => { :config => value, :indent => indent } -%>
+}
+<%   end %>
+<% end %>
