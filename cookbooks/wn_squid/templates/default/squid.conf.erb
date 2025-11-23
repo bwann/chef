@@ -1,0 +1,23 @@
+# This file is managed by Chef. Do not make any changes here or they will be
+# overwritten!  See wn_squid/README.md for more information.
+<% conf = node['wn_squid'].to_hash -%>
+<% conf.each do |directive, config| -%>
+<%   if directive == 'acl' -%>
+<%     config.each do |key, value| -%>
+<%         value.each do |item| -%>
+<%=         directive %> <%= key %> <%= item %>
+<%         end -%>
+<%     end -%>
+<%   elsif directive == 'cache_dir' -%>
+<%     config.each do |cache| -%>
+<%=      directive %> <%= cache['type'] %> <%= cache['directory'] %> <%= cache['options'] %>
+<%     end -%>
+<%   elsif config.is_a?(Array) -%>
+<%     config.each do |item| -%>
+<%=     directive %> <%= item %>
+<%     end -%>
+<%   else -%>
+<%= directive %> <%= config %>
+<%   end -%>
+
+<% end -%>
