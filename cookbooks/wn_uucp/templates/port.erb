@@ -1,0 +1,25 @@
+# This file is maintained by Chef. Do not edit, all changes will be
+# overwritten. See wn_uucp/README.md
+
+#
+# port		This file defines the possible dialout ports you have
+#		on your system. Normally you have only one, and it's
+#		most probably /dev/ttyS[0-3]. Define that port here.
+#
+#		If you have multiple dialout ports, you can ofcourse
+#		define them all if you want.
+#
+# NOTE: Make SURE this device is owned by root:dialout, mode 0660 (crw-rw---)
+<% node['wn_uucp']['port'].each do |port_name, config| %>
+port <%=  port_name %>
+<%   config.each do |key, value| %>
+<%=    key %> <%= value %>
+<%   end %>
+
+<% end %>
+#
+# Description for the TCP port - pretty trivial. DON'T DELETE.
+#
+port TCP
+type tcp
+

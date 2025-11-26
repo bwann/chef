@@ -1,0 +1,22 @@
+# This file is maintained by Chef. Do not edit, all changes will be
+# overwritten. See wn_uucp/README.md
+
+# Template defaults
+protocol gvG
+protocol-parameter G packet-size 1024
+protocol-parameter G short-packets
+protocol-parameter g packet-size 1024
+
+# Extra defaults
+<% node['wn_uucp']['sys']['defaults'].each do |k, v| -%>
+<%=   k %> <%= v %>
+<% end -%>
+
+<% node['wn_uucp']['sys']['systems'].each do |system, data| -%>
+# <%= system %>
+system <%=  system %>
+<%   data.each do |k, v| -%>
+<%=    k %> <%= v %>
+<%   end -%>
+
+<% end %>

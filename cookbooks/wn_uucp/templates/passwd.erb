@@ -1,0 +1,20 @@
+# This file is maintained by Chef. Do not edit, all changes will be
+# overwritten. See wn_uucp/README.md
+
+#
+# passwd   If you give access to your UUCP system over TCP to others,
+#          and you run uucico directly from crontab, then uucico needs
+#          to be able to read the password file to check the password
+#          of the remote system.
+#
+#          With a shadow system that's impossible - only root can read
+#          the passwords from the shadow file. Therefore, if you're
+#          in that situation, you can define the login passwords
+#          here in plain text.
+#
+#          Format:  loginname <TAB> password
+#
+
+<% node['wn_uucp']['passwd'].each do |user, password| -%>
+<%=  user %>	<%= password %>
+<% end -%>
