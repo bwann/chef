@@ -1,0 +1,80 @@
+#!/bin/sh
+#
+# chkconfig: 2345 60 40
+# description: TSDB server
+#
+# From https://github.com/masiulaniec/opentsdb-rhel/blob/master/src/tsdb-server.init
+
+. /etc/rc.d/init.d/functions
+. /etc/sysconfig/tsd
+
+RETVAL=0
+
+start() {
+	status >/dev/null && return 0
+	echo "Starting tsdb server..."
+
+	# Respect sysconfig jvm args.
+	export JVMARGS="-enableassertions -enablesystemassertions $JVMARGS"
+
+	/usr/bin/tsdb tsd \
+		--cachedir=$CACHE \
+		--port=$PORT \
+		--zkquorum=$QUORUM \
+		--staticroot=/usr/share/opentsdb/static \
+		--auto-metric \
+		1>/var/log/tsd/tsdb-server.out \
+		2>/var/log/tsd/tsdb-server.err \
+		&
+}
+
+stop() {
+	status >/dev/null || return 0
+	echo "Stopping tsdb-server..."
+	f=$(mktemp /tmp/pidfile.XXXXXXX)
+	findproc >$f
+	killproc -p $f >/dev/null
+	rm -f $f
+}
+
+findproc() {
+	pgrep -f '^java .*/usr/share/opentsdb/tsdb-2.0.0.jar.* net.opentsdb.tools.TSDMain'
+}
+
+status() {
+	pid=$(findproc)
+	if [ -n "$pid" ]
+	then
+		echo "tsd is running... (pid $pid)"
+		return 0
+	else
+		echo "tsd is stopped."
+		return 1
+	fi
+}
+
+case "$1" in
+	start)
+		start
+		;;
+
+	stop)
+		stop
+		;;
+
+	restart)
+		stop
+		start
+		;;
+
+	status)
+		status
+		RETVAL=$?
+		;;
+
+	*)
+		echo >&2 "Usage: $0 {start|stop|restart|status}"
+		;;
+esac
+
+exit $RETVAL

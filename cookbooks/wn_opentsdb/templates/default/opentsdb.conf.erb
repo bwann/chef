@@ -1,0 +1,6 @@
+# This file is managed by Chef.  Do not make any changes here or they will
+# be overwritten!  See the wn_opentsdb cookbook for more information.
+<% conf = node['wn_opentsdb']['conf'].to_hash -%>
+<% conf.sort.each do |k, v| -%>
+<%=   k %> <%= v %>
+<% end %>

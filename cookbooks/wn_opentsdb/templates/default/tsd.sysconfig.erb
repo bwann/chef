@@ -1,0 +1,5 @@
+# This file is managed by Chef.  Do not make any changes here or they will
+# be overwritten!  See the wn_opentsdb cookbook for more information.
+<% node['wn_opentsdb']['sysconfig'].to_hash.sort.each do |k, v| -%>
+<%= k.upcase %>=<%= v %>
+<% end %>
