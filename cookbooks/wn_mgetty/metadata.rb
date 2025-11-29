@@ -1,7 +1,7 @@
 name 'wn_mgetty'
 maintainer 'Bryan Wann'
 maintainer_email 'bwann-chef@wann.net'
-license 'All Rights Reserved'
+license 'Apache-2.0'
 source_url 'https://github.com/bwann/chef/cookbooks'
 description 'Installs/Configures mgetty'
 # never EVER change this number, ever.
