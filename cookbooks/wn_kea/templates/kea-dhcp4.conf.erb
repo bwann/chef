@@ -1,0 +1,3 @@
+# This file is managed by Chef.
+<% require 'json' -%>
+<%= JSON.pretty_generate('Dhcp4' => node['wn_kea']['_munged_dhcp4_config']) -%>
