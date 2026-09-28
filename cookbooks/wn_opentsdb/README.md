@@ -6,7 +6,7 @@ Any included scripts probably came from (https://github.com/OpenTSDB/opentsdb)
 
 Requirements
 ------------
-- This requires a working instance of Apache HBase, running either in standalone
+* This requires a working instance of Apache HBase, running either in standalone
 or distributed mode.
 
 Attributes
@@ -76,6 +76,7 @@ file equivalents.
 `INFO  [main] TSDMain: Ready to serve on /0.0.0.0:4242`
 
 * Checking health, connect to port 4242 and issue `version` or `stats`
+
 ```
 $ echo version | nc localhost 4242
 net.opentsdb.tools 2.2.0 built at revision  (MODIFIED)
@@ -87,8 +88,10 @@ tables were not found in HBase. Run the `tools/create_table.sh` script on the
 HBase server to create them. Restart OpenTSDB after creating the tables.
 
 e.g.
-```env COMPRESSION=NONE HBASE_HOME=/opt/hbase tools/create_table.sh```
+
+```
+env COMPRESSION=NONE HBASE_HOME=/opt/hbase tools/create_table.sh
+```
 
 * Error `[OpenTSDB I/O Worker #5] HBaseClient: Need to find the .META. region`:
 the HBase server went away or else lost connection.
-

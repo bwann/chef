@@ -1,0 +1,12 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    uses: facebook/chef-cookbooks/.github/workflows/reusable-ci.yml@main
+    with:
+      universe: true

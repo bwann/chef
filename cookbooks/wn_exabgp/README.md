@@ -4,6 +4,8 @@ Installs and manages ExaBGP, the BGP swiss army knife of networking
 
 Requirements
 ------------
+* `fb_users` to manage the exabgp user and group. UID_MAP and GID_MAP need entries for `exabgp`.
+* CentOS/RHEL, the `exabgp` packages come from EPEL
 
 Attributes
 ----------

@@ -23,8 +23,8 @@ package 'squid' do
   action :upgrade
 end
 
-squid_group = node.centos? ? 'squid' : 'proxy'
-squid_user = node.centos? ? 'squid' : 'proxy'
+squid_group = node.debian_family? ? 'proxy' : 'squid'
+squid_user = node.debian_family? ? 'proxy' : 'squid'
 
 group squid_group do
   action :create
@@ -50,6 +50,7 @@ template '/etc/squid/squid.conf' do
   mode '0640'
   owner 'root'
   group squid_group
+  verify 'squid -f %{path} -k parse'
   notifies :reload, 'service[squid]'
 end
 

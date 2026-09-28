@@ -19,21 +19,17 @@
 # limitations under the License.
 #
 
-group 'exabgp'
+# Set up the exabgp group and user
+FB::Users.initialize_group(node, 'exabgp')
+node.default['fb_users']['users']['exabgp'] = {
+  'gid' => 'exabgp',
+  'shell' => '/sbin/nologin',
+  'home' => '/run/exabgp',
+  'action' => :add,
+  'manage_home' => false,
+}
 
-user 'exabgp' do
-  gid 'exabgp'
-  home '/run/exabgp'
-  action [:create, :lock]
-end
-
-packages = %w{exabgp}
-
-if node.centos7?
-  packages << 'python-exabgp'
-else
-  packages << 'python3-exabgp'
-end
+packages = %w{exabgp python3-exabgp}
 
 package packages do
   action :upgrade
@@ -44,7 +40,7 @@ template '/etc/exabgp/exabgp.conf' do
   mode '0644'
   owner 'root'
   group 'root'
-  notifies :reload, 'service[exabgp]'
+  notifies :restart, 'service[exabgp]'
 end
 
 service 'exabgp' do

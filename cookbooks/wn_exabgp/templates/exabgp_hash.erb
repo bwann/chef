@@ -3,7 +3,7 @@
 <% @config.each do |key, val| %>
 <%   next if key.start_with?('_') %>
 <%   if val.is_a?(Array) %>
-<%=    ind %><%=      key  %> [ <%= val.join(' ') %> ];
+<%=    ind %><%=      key  %> [ <%= val.join(', ') %> ];
 <%   elsif val.is_a?(Hash) %>
 <%=    ind %><%=    key  %> {
 <%=    render 'exabgp_hash.erb',

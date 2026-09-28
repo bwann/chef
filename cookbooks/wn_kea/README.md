@@ -5,7 +5,12 @@ Installs and configures the Kea DHCP v4 and v6 servers.
 
 Requirements
 ------------
-- `fb_users` to manage the kea user and group
+- `fb_users` to manage the kea user and group. Your `FB::Users` `UID_MAP` and
+  `GID_MAP` need entries for `kea` (RPM-based) or `_kea` (Debian/Ubuntu).
+- ISC's own packages (`isc-kea-*`) from the
+  [ISC Cloudsmith repositories](https://cloudsmith.io/~isc/repos/), not the
+  distro's `kea` packages. Setting up that repo is left to you; see
+  `test_services` in this repo for an example.
 
 Attributes
 ----------
@@ -27,11 +32,14 @@ by setting attributes under `node['wn_kea']['dhcp4']` and `node['wn_kea']['dhcp6
 These are hashes and follow the same layering as the YAML map.
 
 For example to configure the network interface on which the DHCPv4 and DHCPv6 servers listen:
+
 ```ruby
 node.default['wn_kea']['dhcp4']['interfaces-config']['interfaces'] = ['eth0']
 node.default['wn_kea']['dhcp6']['interfaces-config']['interfaces'] = ['eth0']
 ```
-## Subnets
+
+Subnets
+-------
 
 This is the list of subnets for which the server will be leasing addresses. They can have single
 or multiple pools, as well as host reservations.
@@ -42,7 +50,7 @@ changed on a pool with existing leases, unwanted consequences can happen. For th
 cookbook hashes the actual subnet prefix internally to a 32-bit number so subnets can be added
 or removed without breaking existing leases.
 
-**MAC/Hardware addresses in DHCPv6****
+### MAC/Hardware addresses in DHCPv6
 
 It is often necessary to assign IPv6 addresses based upon the MAC address of a host, similar to
 how reservations are done with IPv4. The DHCPv6 protocol doesn't officially support this but Kea
@@ -56,7 +64,6 @@ to the 'Host Reservation in DHCPv6' section of the Kea Administrator Reference M
 information.
 
 ### Example subnet configurations
-
 
 **Example 1, DHCPv4:**
 

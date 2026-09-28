@@ -30,10 +30,7 @@ template '/etc/issue.mgetty' do
   group 'root'
 end
 
-config_dir = value_for_platform(
-  'centos' => { :default => '/etc/mgetty+sendfax' },
-  :default => '/etc/mgetty',
-)
+config_dir = node.debian_family? ? '/etc/mgetty' : '/etc/mgetty+sendfax'
 
 %w{
   dialin.config
@@ -48,9 +45,10 @@ config_dir = value_for_platform(
   end
 end
 
-# Weirdly there's no packaged systemd unit file on Debian
+# Weirdly there's no packaged systemd unit file on Debian (or Ubuntu, which
+# uses the Debian package)
 cookbook_file '/etc/systemd/system/mgetty@.service' do
-  only_if { node.debian? }
+  only_if { node.debian_family? }
   source 'mgetty.service'
   mode '0644'
   owner 'root'
@@ -62,6 +60,7 @@ end
 # mgetty systemd units instead of just a single one
 
 service 'enabling mgetty instances' do
+  not_if { node['wn_mgetty']['enable_port'].empty? }
   service_name lazy { "mgetty@#{node['wn_mgetty']['enable_port']}" }
   action [:enable, :start]
   subscribes :reload, "template[#{config_dir}/mgetty.config]"

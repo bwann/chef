@@ -1,0 +1,7 @@
+# Layered on top of the upstream facebook/chef-cookbooks .kitchen.yml by the
+# reusable kitchen workflow (see .github/workflows/kitchen.yml). Upstream
+# provides the driver and platform list; we only add our own suite.
+suites:
+  - name: local
+    run_list:
+      - recipe[test_services]

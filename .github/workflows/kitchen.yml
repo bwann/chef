@@ -1,0 +1,17 @@
+name: Kitchen Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  kitchen:
+    strategy:
+      fail-fast: false
+    uses: facebook/chef-cookbooks/.github/workflows/reusable-kitchen-tests.yml@main
+    secrets: inherit
+    with:
+      universe: true
+      suite: local
+      kitchen_local_yaml: .kitchen.local.yml

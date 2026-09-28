@@ -17,8 +17,13 @@
 # limitations under the License.
 #
 
-kea_group = node.centos? ? 'kea' : '_kea'
-kea_user = node.centos? ? 'kea' : '_kea'
+unless node.rhel_family? || node.fedora_family? || node.debian_family?
+  fail 'wn_kea: unsupported platform'
+end
+
+# ISC's RPMs and debs name the account and services differently
+kea_group = node.debian_family? ? '_kea' : 'kea'
+kea_user = node.debian_family? ? '_kea' : 'kea'
 
 # Add kea user and group
 FB::Users.initialize_group(node, kea_group)
@@ -29,26 +34,23 @@ node.default['fb_users']['users'][kea_user] = {
   'action' => :add,
 }
 
-packages = value_for_platform(
-  'centos' => {
-    'default' => %w{
-      isc-kea
-      isc-kea-common
-      isc-kea-dhcp4
-      isc-kea-dhcp6
-      isc-kea-hooks
-    },
-  },
-  ['debian', 'ubuntu'] => {
-    'default' => %w{
-      isc-kea-admin
-      isc-kea-common
-      isc-kea-dhcp4
-      isc-kea-dhcp6
-      isc-kea-hooks
-    },
-  },
-)
+if node.debian_family?
+  packages = %w{
+    isc-kea-admin
+    isc-kea-common
+    isc-kea-dhcp4
+    isc-kea-dhcp6
+    isc-kea-hooks
+  }
+else
+  packages = %w{
+    isc-kea
+    isc-kea-common
+    isc-kea-dhcp4
+    isc-kea-dhcp6
+    isc-kea-hooks
+  }
+end
 
 package packages do
   action :upgrade
@@ -78,7 +80,7 @@ end
 # user-friendly, especially when we want to do things like override pools
 # from different recipes. The user would need to know the subnet-id of a given
 # subnet they want to work on.
-# 
+#
 # This cookbook is designed to use the actual subnet CIDR notation as the
 # key in configs so the subnet-id is hidden away from the user and generated
 # automatically in this recipe.
@@ -139,11 +141,11 @@ end
 end
 
 service 'kea-dhcp4' do
-  service_name node.centos? ? 'kea-dhcp4' : 'isc-kea-dhcp4-server'
+  service_name node.debian_family? ? 'isc-kea-dhcp4-server' : 'kea-dhcp4'
   action [:enable, :start]
 end
 
 service 'kea-dhcp6' do
-  service_name node.centos? ? 'kea-dhcp6' : 'isc-kea-dhcp6-server'
+  service_name node.debian_family? ? 'isc-kea-dhcp6-server' : 'kea-dhcp6'
   action [:enable, :start]
 end
