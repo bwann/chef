@@ -35,6 +35,11 @@ module FB
     }.freeze
 
     GID_MAP = {
+      # fb_users' default primary group (user_defaults), must be mapped
+      'users' => {
+        'gid' => 100,
+        'system' => true,
+      },
       'kea' => {
         'gid' => 202,
         'system' => true,
