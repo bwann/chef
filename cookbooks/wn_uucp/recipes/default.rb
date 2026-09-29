@@ -69,8 +69,9 @@ directory '/etc/uucp' do
   group 'root'
 end
 
+# Need to be world readable so users can run uucico
 directory '/usr/lib/uucp/' do
-  mode '0750'
+  mode '0755'
   owner 'uucp'
   group 'uucp'
 end
@@ -144,8 +145,8 @@ end
 end
 
 # 'sys' ordering is important, defaults first, then system defintions.
-# systems can have multiple alternates, callin/callout, dial/tcp
-# XXX: todo support alternate
+# systems can have multiple alternates, callin/callout, dial/tcp; see
+# wn_uucp/README.md for the 'alternate' attribute format.
 template '/etc/uucp/sys' do
   source 'sys.erb'
   mode '0644'

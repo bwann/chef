@@ -30,10 +30,9 @@ node.default['wn_uucp']['email'] = 'me@example.com'
 node.default['wn_uucp']['config']['nodename'] = 'mysite'
 ```
 
-UUCP over TCP is untested and unsupported. This cookbook was originally
-designed to use with mgetty (via the `wn_mgetty` cookbook) and dial-up modems.
-Performing UUCP over TCP/SSH connections is a goal and support will eventually
-be added.
+This cookbook was originally designed to use with mgetty (via the `wn_mgetty`
+cookbook) and dial-up modems. Performing UUCP over SSH has been tested and works
+with this cookbook, however UUCP over plain TCP has not been tested.
 
 ### CentOS/Fedora note (uudemon scripts)
 
@@ -83,7 +82,7 @@ to give a shell account to users. This greatly limits the attack surface.
 
 ### Example usage
 
-* Configure a modem "dialer" called `usrsportster` on a USB-serial adapter at
+* Configure a modem device called `usrsportster` on a USB-serial adapter at
 `/dev/ttyUSB0`:
 
 ```ruby
@@ -135,6 +134,115 @@ node.default['wn_uucp']['sys']['systems']['remotesite'] = {
 }
 ```
 
+* Alternate sys entries
+
+The cookbook supports multiple 'alternate' entries in a system 'sys' entry.
+These are usually used for using a backup device for connecting to a remote site.
+The key `alternate` is an array of hashses to allow specifying multiple alternates
+with overriding port, protocol, etc.
+
+```ruby
+node.default['wn_uucp']['sys']['systems']['wannnet'] = {
+  'phone' => '5105551212',
+  'protocol' => 'gvG',
+  'alternate' => [
+    {
+      'name' => 'wannnet-tcp',
+      'port' => 'tcp',
+      'protocol' => 'i',
+    },
+  ],
+}
+```
+
+renders as:
+
+```
+system wannnet
+phone 5105551212
+protocol gvG
+alternate wannnet-tcp
+port tcp
+protocol i
+```
+
+* UUCP over SSH
+
+This example requires setting up a normal Linux user on the server/hub site and using SSH keys for
+authentication. The remote site will be connecting via SSH and running `uucico -l` from a shell
+so there's nothing further to set up on the hub.
+
+Server/hub site configuration:
+```ruby
+# Server site 'volcano' for user 'Ufoobar'
+
+- Create a Linux user account
+  You can set this account up with fb_users, a normal 'user' resource, or by hand
+
+node.default['fb_users']['users']['Ufoobar'] = {
+  # uid defined in fb_users UID_MAP
+  'gid' => 'uuguest',
+  # shell needs to be bash in order for authorized_keys to run 'uucico -l'
+  'shell' => '/usr/bin/bash',
+  'home' => '/home/Ufoobar',
+  'action' => :add,
+}
+
+- Create an SSH key and put the public/private key in Ufoobar's ~/.ssh/ directory
+  (I prefer to name these with the site name and username for reference)
+ssh-keygen -t rsa -f ~Ufoobar/.ssh/volcano-uucp-Ufoobar.id_rsa -N ''
+
+- Create an SSH authorized_keys file in ~/Ufoobar/.ssh/authorized_keys with a
+'command=' directive to only allow running 'uucico -l'
+
+no-port-forwarding,no-X11-forwarding,no-agent-forwarding,command="/usr/sbin/uucico -l" ssh-rsa AAAAA.......KtjU= Ufoobar
+```
+
+Remote site configuration:
+```ruby
+# Remote site 'kgbvax' connecting to hub 'volcano'
+
+- Copy the private key to the remote site, e.g. /etc/uucp/volcano-uucp-Ufoobar
+
+- Create a 'port' defintion for the hub with the path to the ssh key, username, and server name:
+
+node.default['wn_uucp']['port']['uucpssh-volcano'] = {
+  'type' => 'pipe',
+  'command' => '/usr/bin/ssh -a -x -q -i /etc/uucp/volcano-uucp-Ufoobar.id_rsa -l Ufoobar uucp.volcanoserver.net',
+  'reliable' => 'true',
+  'protocol' => 'etyig',
+}
+
+- Create a 'sys' definition for the hub normally but specify 'port' as 'uucpssh-volcano' and 'protocol' 'i'
+
+```
+
+Now when uucp/uucico on 'kgbvax' contacts 'volcano' it will use the pipe to ssh instead of using a modem.
+
+- UUCP over modem with SSH as backup
+
+As the cookbook supports multiple 'alternate' entries for 'sys', you can provide an
+alternative connection profile for a site. For example, if the primary path to `volcano`
+is a dial-up modem, but if it fails to transfer data, fall back to using UUCP over SSH.
+(Or vice versa, if you want UUCP-SSH to be primary and modem to be backup)
+
+```ruby
+node.default['wn_uucp']['sys']['systems']['volcano'] = {
+  'call-login' => 'Ufoobar',
+  'time' => 'Any 10',
+  'phone' => '5105551212',
+  'port' => 'usrsportster',
+  'chat' => '"" \r\c ogin:-BREAK-ogin:-BREAK- \L word: \P',
+  'alternate' => [
+    {
+      'name' => 'volcano-ssh',
+      'protocol' => 'i',
+      'port' => 'uucpssh-volcano',
+    },
+  ],
+}
+```
+
 Extra resources
 ---------------
 There's an old but excellent -- and still relevant -- O'Reilly book for setting up UUCP,
@@ -142,6 +250,7 @@ including Taylor UUCP:
 
 * Ravin, E., O’Reilly, T., Dougherty, D., & Todino, G. (1996, Second Edition).
 ___Using & managing UUCP___. O’Reilly & Associates.
+Available on the Internet Archive: https://archive.org/details/usingmanaginguuc00edra
 
 Not to be confused with the older UUCP and Usenet book that only covers
 HoneyDanBer UUCP/BNU and Version 2:

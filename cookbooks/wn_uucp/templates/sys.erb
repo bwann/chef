@@ -16,7 +16,18 @@ protocol-parameter g packet-size 1024
 # <%= system %>
 system <%=  system %>
 <%   data.each do |k, v| -%>
-<%=    k %> <%= v %>
+<%     if k == 'alternate' -%>
+<%       v.each do |alt| -%>
+<%         alt = alt.dup -%>
+<%         alt_name = alt.delete('name') -%>
+alternate<%= alt_name ? " #{alt_name}" : '' %>
+<%         alt.each do |ak, av| -%>
+<%=          ak %> <%= av %>
+<%         end -%>
+<%       end -%>
+<%     else -%>
+<%=      k %> <%= v %>
+<%     end -%>
 <%   end -%>
 
 <% end %>
