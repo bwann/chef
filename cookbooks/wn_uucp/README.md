@@ -82,7 +82,9 @@ to give a shell account to users. This greatly limits the attack surface.
 
 ### Example usage
 
-* Configure a modem device called `usrsportster` on a USB-serial adapter at
+#### Modem configuration
+
+Configure a modem device called `usrsportster` on a USB-serial adapter at
 `/dev/ttyUSB0`:
 
 ```ruby
@@ -91,10 +93,14 @@ node.default['wn_uucp']['port']['usrsportster'] = {
   'dialer' => 'hayes',
   'speed' => '57600',
 }
-
 ```
 
-* Incoming config for remote site -> your site:
+To change the initialization string, see the `hayes` entry in the template.
+
+
+#### Incoming call config
+
+Incoming config for a remote site dialing into your site:
 
 ```ruby
 # call-in password, remotesite -> mysite
@@ -110,7 +116,10 @@ node.default['wn_uucp']['sys']['systems']['remotesite'] = {
 }
 ```
 
-* Outbound config for your site -> remote site:
+#### Outgoing call config
+
+Outbound config for your site dialing into a remote site, setting up a
+`call` entry.
 
 ```ruby
 # call-out password, mysite -> remote
@@ -118,9 +127,11 @@ node.default['wn_uucp']['call']['remote'] = {
   'username' => 'Umysite',
   'password' => 'mysecurepassword',
 }
+```
 
-additional Systems config for how to contact the remote site:
+then additional `Systems` config for how to contact the remote site:
 
+```ruby
 node.default['wn_uucp']['sys']['systems']['remotesite'] = {
   'call-login' => 'Umysite',
   # call-passwords saved in 'call' file, so '*' here
@@ -134,7 +145,7 @@ node.default['wn_uucp']['sys']['systems']['remotesite'] = {
 }
 ```
 
-* Alternate sys entries
+#### Alternate sys entries
 
 The cookbook supports multiple 'alternate' entries in a system 'sys' entry.
 These are usually used for using a backup device for connecting to a remote site.
@@ -157,7 +168,7 @@ node.default['wn_uucp']['sys']['systems']['wannnet'] = {
 
 renders as:
 
-```
+```bash
 system wannnet
 phone 5105551212
 protocol gvG
@@ -166,60 +177,63 @@ port tcp
 protocol i
 ```
 
-* UUCP over SSH
+#### UUCP over SSH
 
 This example requires setting up a normal Linux user on the server/hub site and using SSH keys for
 authentication. The remote site will be connecting via SSH and running `uucico -l` from a shell
 so there's nothing further to set up on the hub.
 
-Server/hub site configuration:
+Server/hub site 'volcano' configuration with user account `Ukgbvax` for remote site `kgbvax`:
+
+* Create a Linux user account. You can set this account up with `fb_users`, a normal 'user' resource, or by hand.
+
 ```ruby
-# Server site 'volcano' for user 'Ufoobar'
-
-- Create a Linux user account
-  You can set this account up with fb_users, a normal 'user' resource, or by hand
-
-node.default['fb_users']['users']['Ufoobar'] = {
+node.default['fb_users']['users']['Ukgbvax'] = {
   # uid defined in fb_users UID_MAP
   'gid' => 'uuguest',
   # shell needs to be bash in order for authorized_keys to run 'uucico -l'
   'shell' => '/usr/bin/bash',
-  'home' => '/home/Ufoobar',
+  'home' => '/home/Ukgbvax',
   'action' => :add,
 }
+```
 
-- Create an SSH key and put the public/private key in Ufoobar's ~/.ssh/ directory
-  (I prefer to name these with the site name and username for reference)
-ssh-keygen -t rsa -f ~Ufoobar/.ssh/volcano-uucp-Ufoobar.id_rsa -N ''
+* Create an SSH key and put the public/private key in `~Ukgbvax/.ssh/` directory. The key here is named
+after the remote site and account name for convienience, it can be named anything.
 
-- Create an SSH authorized_keys file in ~/Ufoobar/.ssh/authorized_keys with a
-'command=' directive to only allow running 'uucico -l'
+```bash
+ssh-keygen -t rsa -f ~Ukgbvax/.ssh/volcano-uucp-Ukgbvax.id_rsa -N ''
+```
 
-no-port-forwarding,no-X11-forwarding,no-agent-forwarding,command="/usr/sbin/uucico -l" ssh-rsa AAAAA.......KtjU= Ufoobar
+* Create an SSH `authorized_keys` file in `~/Ukgbvax/.ssh/authorized_keys` with a
+`'command='` directive to only allow running `uucico -l`
+
+```bash
+no-port-forwarding,no-X11-forwarding,no-agent-forwarding,command="/usr/sbin/uucico -l" ssh-rsa AAAAA.......KtjU= Ukgbvax_user
 ```
 
 Remote site configuration:
+
+Remote site `kgbvax` connecting to hub `volcano`.
+
+* Copy the private key to the remote site, e.g. /etc/uucp/volcano-uucp-Ukgbvax
+
+* Create a 'port' defintion for the hub with the path to the ssh key, username, and server name:
+
 ```ruby
-# Remote site 'kgbvax' connecting to hub 'volcano'
-
-- Copy the private key to the remote site, e.g. /etc/uucp/volcano-uucp-Ufoobar
-
-- Create a 'port' defintion for the hub with the path to the ssh key, username, and server name:
-
 node.default['wn_uucp']['port']['uucpssh-volcano'] = {
   'type' => 'pipe',
-  'command' => '/usr/bin/ssh -a -x -q -i /etc/uucp/volcano-uucp-Ufoobar.id_rsa -l Ufoobar uucp.volcanoserver.net',
+  'command' => '/usr/bin/ssh -a -x -q -i /etc/uucp/volcano-uucp-Ukgbvax.id_rsa -l Ukgbvax uucp.volcanoserver.net',
   'reliable' => 'true',
   'protocol' => 'etyig',
 }
-
-- Create a 'sys' definition for the hub normally but specify 'port' as 'uucpssh-volcano' and 'protocol' 'i'
-
 ```
+
+* Create a 'sys' definition for the hub normally but specify 'port' as 'uucpssh-volcano' and 'protocol' 'i'
 
 Now when uucp/uucico on 'kgbvax' contacts 'volcano' it will use the pipe to ssh instead of using a modem.
 
-- UUCP over modem with SSH as backup
+#### UUCP over modem with SSH as backup
 
 As the cookbook supports multiple 'alternate' entries for 'sys', you can provide an
 alternative connection profile for a site. For example, if the primary path to `volcano`
@@ -228,7 +242,7 @@ is a dial-up modem, but if it fails to transfer data, fall back to using UUCP ov
 
 ```ruby
 node.default['wn_uucp']['sys']['systems']['volcano'] = {
-  'call-login' => 'Ufoobar',
+  'call-login' => 'Ukgbvax',
   'time' => 'Any 10',
   'phone' => '5105551212',
   'port' => 'usrsportster',
