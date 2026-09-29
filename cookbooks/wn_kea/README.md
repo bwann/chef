@@ -3,6 +3,10 @@ wn_kea Cookbook
 
 Installs and configures the Kea DHCP v4 and v6 servers.
 
+This differs from `fb_kea` cookbook in that subnet IDs are automatically computed from a hash of
+the subnet vs arbitrary labels added in `fb_kea`. It's also not quite as flexible as the hash-based
+customization of reservations and option data as `fb_kea`.
+
 Requirements
 ------------
 - `fb_users` to manage the kea user and group. Your `FB::Users` `UID_MAP` and
@@ -10,7 +14,8 @@ Requirements
 - ISC's own packages (`isc-kea-*`) from the
   [ISC Cloudsmith repositories](https://cloudsmith.io/~isc/repos/), not the
   distro's `kea` packages. Setting up that repo is left to you; see
-  `test_services` in this repo for an example.
+  `test_services` in this repo for an example. ISC's Kea 3.0 repo has no
+  packages for Fedora 40 or older.
 
 Attributes
 ----------

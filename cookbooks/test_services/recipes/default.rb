@@ -58,7 +58,10 @@ end
 
 include_recipe 'wn_squid'
 
-include_recipe 'wn_kea'
+# ISC's kea-3-0 repo only has packages for Fedora 41+ (fedora/40 is empty)
+unless node.fedora_max_version?(40)
+  include_recipe 'wn_kea'
+end
 
 # exabgp is in EPEL 9 and Fedora, but not EPEL 10
 unless node.el_min_version?(10)
