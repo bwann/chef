@@ -1,7 +1,7 @@
 wn_isc_stork Cookbook
 =====================
 
-Configures the ISC Stork web-based graphical dashboard for Kea DHCP 
+Configures the ISC Stork web-based graphical dashboard for Kea DHCP
 and BIND 9 servers.
 
 Stork has two components, a centralized server `stork-server` backed by
@@ -18,11 +18,11 @@ Attributes
 Usage
 -----
 
-## Stork Agent
+### Stork Agent
 
 By default this cookbook installs only the Stork agent when included by
 another role or cookbook.
 
-## Stork Server
+### Stork Server
 
 Include the recipe `wn_isc_stork::server` to install the Stork server component.
