@@ -97,7 +97,6 @@ node.default['wn_uucp']['port']['usrsportster'] = {
 
 To change the initialization string, see the `hayes` entry in the template.
 
-
 #### Incoming call config
 
 Incoming config for a remote site dialing into your site:
